@@ -1,0 +1,4 @@
+semver>=2,<3
+pdoc3>=0,<1
+pre-commit>=2,<3
+wheel>=0,<1

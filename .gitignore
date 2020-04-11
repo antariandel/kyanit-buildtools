@@ -1,0 +1,8 @@
+﻿.vscode*
+__pycache__
+*.pyc
+_playground
+build
+dist
+*.egg-info
+_version.py

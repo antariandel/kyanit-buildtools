@@ -1,0 +1,13 @@
+-   id: gendocs
+    name: Generate Documentation (pdoc3)
+    entry: python -m kyanit_buildtools.gendocs
+    pass_filenames: False
+    require_serial: True
+    lanugage: python
+
+-   id: genrelease
+    name: Release and Changelog Generation
+    entry: python -m kyanit_buildtools.genrelease
+    pass_filenames: False
+    require_serial: True
+    language: python

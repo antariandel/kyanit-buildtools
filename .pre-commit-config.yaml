@@ -1,0 +1,27 @@
+exclude: 'docs'
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.5.0
+    hooks:
+    -   id: check-yaml
+    -   id: check-json
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+    -   id: check-docstring-first
+-   repo: https://github.com/timothycrosley/isort
+    rev: 4.3.20
+    hooks:
+    -   id: isort
+        name: Sort imports (isort)
+        args: ["-ls", "-sl", "-s", "README.md", "-s", ".gitignore", "--filter-files"]
+-   repo: https://github.com/psf/black
+    rev: 19.10b0
+    hooks:
+    -   id: black
+        name: Black
+-   repo: https://github.com/PyCQA/flake8
+    rev: 3.7.9
+    hooks:
+    -   id: flake8
+        name: Flake8
+        args: [--max-line-length=88, --ignore=F405]
