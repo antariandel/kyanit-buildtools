@@ -3,7 +3,7 @@
     entry: python -m kyanit_buildtools.gendocs
     pass_filenames: False
     require_serial: True
-    lanugage: python
+    language: python
 
 -   id: genrelease
     name: Release and Changelog Generation
