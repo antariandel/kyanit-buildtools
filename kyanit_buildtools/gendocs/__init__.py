@@ -115,8 +115,9 @@ def command_line():
     if args.exclude:
         _excludes = args.exclude
 
-    for path in args.pythonpath:
-        sys.path.append(os.path.join(os.getcwd(), path))
+    if args.pythonpath:
+        for path in args.pythonpath:
+            sys.path.append(os.path.join(os.getcwd(), path))
 
     pdoc.tpl_lookup.directories.insert(0, os.path.join(args.docs_dir, "templates"))
 
