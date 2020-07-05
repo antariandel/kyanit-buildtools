@@ -199,7 +199,7 @@ def command_line():
     parser.add_argument(
         "--new-version", "-nv",
         action="store_true",
-        help="calculate new verson based on latest version and conventional commit "
+        help="calculate new version based on latest version and conventional commit "
              "history, or return latest version if no feature or fix type commits "
              "happened since"
     )
@@ -223,7 +223,7 @@ def command_line():
         nargs="?",
         metavar="FILE",
         help="create a Python script containing '__version__ = VER' where VER will "
-             "be the version returned by --new-version if feature of fix changes have "
+             "be the version returned by --new-version if feature or fix changes have "
              "been made since --latest-version, otherwise put --latest-version in VER"
     )
 

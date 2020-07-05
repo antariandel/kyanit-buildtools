@@ -1,5 +1,5 @@
 -   id: gendocs
-    name: Generate Documentation (pdoc3)
+    name: Generate Documentation
     entry: python -m kyanit_buildtools.gendocs
     pass_filenames: False
     require_serial: True
