@@ -1,9 +1,10 @@
 import os
 import re
 import sys
-import pdoc
 import shutil
 import argparse
+
+import pdoc
 
 
 def clean(docs_dir, toplevel_name):
@@ -24,7 +25,7 @@ def recurse_modules(mod):
 
 
 def module_path(docs_dir, mod, ext):
-    return os.path.join(docs_dir, *re.sub(r'\.html$', ext, mod.url()).split('/'))
+    return os.path.join(docs_dir, *re.sub(r"\.html$", ext, mod.url()).split("/"))
 
 
 def touch(filepath):
@@ -32,7 +33,7 @@ def touch(filepath):
         os.makedirs(os.path.dirname(filepath))
     except FileExistsError:
         pass
-    with open(filepath, 'w'):
+    with open(filepath, "w"):
         pass
 
 
@@ -40,7 +41,7 @@ _excludes = []
 
 
 def exclude_filter(obj):
-    match = re.search(r'\s\'(.*)\'\>$', str(obj))
+    match = re.search(r"\s\'(.*)\'\>$", str(obj))
     if match is not None:
         name = match.group(1)
         if name not in _excludes:
@@ -53,13 +54,11 @@ def exclude_filter(obj):
 def generate_htmls(docs_dir, toplevel_name, show_source_code=True):
     toplevel = load_toplevel(toplevel_name)
     for module in recurse_modules(toplevel):
-        module_file = module_path(docs_dir, module, '.html')
+        module_file = module_path(docs_dir, module, ".html")
         touch(module_file)
-        with open(module_file, 'w') as file:
+        with open(module_file, "w") as file:
             html = pdoc.html(
-                module.name,
-                docfilter=exclude_filter,
-                show_source_code=show_source_code
+                module.name, docfilter=exclude_filter, show_source_code=show_source_code
             )
             file.write(html.replace("…", ""))  # remove ellipses from HTML
 
@@ -68,36 +67,36 @@ def command_line():
     global _excludes
 
     parser = argparse.ArgumentParser(
-        prog="gendocs",
-        description="Kyanit Build Tools - gendocs: Documentation generator for Kyanit "
-                    "components",
-        usage="python -m kyanit_buildtools.%(prog)s TOPLEVEL DOCS_DIR [options...]"
+        prog="kyanit-docgen",
+        description="Command-line application for generating documentation from Python "
+        "source code.",
+        usage="%(prog)s TOPLEVEL DOCS_DIR [options...]",
     )
 
     parser.add_argument(
         "toplevel",
         metavar="TOPLEVEL",
         help="top-level package or module name to create documentation for; gendocs "
-             "will recurse to sub-modules",
+        "will recurse to sub-modules",
     )
 
     parser.add_argument(
-        "docs_dir",
-        metavar="DOCS_DIR",
-        help="output directory for documentation files",
+        "docs_dir", metavar="DOCS_DIR", help="output directory for documentation files",
     )
 
     parser.add_argument(
-        "--pythonpath", "-p",
+        "--pythonpath",
+        "-p",
         action="extend",
         nargs="+",
         metavar="DIR",
         help="directories to add to PYTHONPATH before attempting to import the "
-             "top-level package or module",
+        "top-level package or module",
     )
 
     parser.add_argument(
-        "--exclude", "-e",
+        "--exclude",
+        "-e",
         action="extend",
         nargs="+",
         metavar="NAME",
@@ -105,7 +104,8 @@ def command_line():
     )
 
     parser.add_argument(
-        "--with-source", "-s",
+        "--with-source",
+        "-s",
         action="store_true",
         help="include source codes in documentation",
     )
