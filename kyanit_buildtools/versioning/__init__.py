@@ -180,8 +180,8 @@ def get_latest_version():
 def get_commit_oneline(commit):
     commit = StringIO(commit)
     while True:
-        for i in range(3):
-            commit.readline()  # discard author and date
+        while commit.readline().strip():
+            pass  # discard commit header
         line = commit.readline().strip()
         return line.partition(":")[2].strip() if ":" in line else line
 
@@ -198,8 +198,8 @@ def get_commit_types(commits, include=[]):
     commits_out = collections.OrderedDict()
     for revision in commits:
         commit_info = StringIO(commits[revision])
-        for i in range(3):
-            commit_info.readline()  # discard author and date
+        while commit_info.readline().strip():
+            pass  # discard commit header
         commit_line = commit_info.readline()
         commit_type = re.match(r"\s+([a-z]+)[(|!|:]", commit_line).group(1)
         commit_scope = re.search(r"\((.*)\):", commit_line)
