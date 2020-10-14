@@ -201,8 +201,12 @@ def get_commit_types(commits, include=[]):
         while commit_info.readline().strip():
             pass  # discard commit header
         commit_line = commit_info.readline()
-        commit_type = re.match(r"\s+([a-z]+)[(|!|:]", commit_line).group(1)
-        commit_scope = re.search(r"\((.*)\):", commit_line)
+        commit_descriptor = re.search(
+            r"^\s*([a-z|A-Z|0-9|\.|\_|\-]+)(?:\(([a-z|A-Z|0-9|\.|\_|\-]+)\))?(\!)?\:",
+            commit_line
+        )
+        commit_type = f"{commit_descriptor.group(1)}{commit_descriptor.group(3) or ''}"
+        commit_scope = commit_descriptor.group(2)
         if include and commit_type not in include:
             continue
         while True:
@@ -210,11 +214,12 @@ def get_commit_types(commits, include=[]):
             if not line:
                 break
             if "BREAKING CHANGE" in line or "BREAKING-CHANGE" in line:
-                commit_type = "{}!".format(commit_type)
+                if not commit_type.endswith("!"):
+                    commit_type = "{}!".format(commit_type)
                 break
         commits_out[revision] = (
             commit_type,
-            None if commit_scope is None else commit_scope.group(1),
+            commit_scope
         )
     return commits_out  # newest first
 
