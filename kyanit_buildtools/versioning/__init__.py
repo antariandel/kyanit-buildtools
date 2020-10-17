@@ -69,7 +69,10 @@ def describe_head():
     if proc.stderr:
         if "not a git repository" in proc.stderr.decode():
             raise GitRepositoryNotFound
-        elif "cannot describe anything" in proc.stderr.decode():
+        elif (
+            "cannot describe anything" in proc.stderr.decode()
+            or "no tags can describe" in proc.stderr.decode().lower()
+        ):
             # no version tag exists yet
             proc = subprocess.run(
                 ["git", "rev-parse", "--short", "HEAD"],
