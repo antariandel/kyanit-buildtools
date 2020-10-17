@@ -206,7 +206,7 @@ def get_commit_types(commits, include=[]):
         commit_line = commit_info.readline()
         commit_descriptor = re.search(
             r"^\s*([a-z|A-Z|0-9|\.|\_|\-]+)(?:\(([a-z|A-Z|0-9|\.|\_|\-]+)\))?(\!)?\:",
-            commit_line
+            commit_line,
         )
         commit_type = f"{commit_descriptor.group(1)}{commit_descriptor.group(3) or ''}"
         commit_scope = commit_descriptor.group(2)
@@ -220,10 +220,7 @@ def get_commit_types(commits, include=[]):
                 if not commit_type.endswith("!"):
                     commit_type = "{}!".format(commit_type)
                 break
-        commits_out[revision] = (
-            commit_type,
-            commit_scope
-        )
+        commits_out[revision] = (commit_type, commit_scope)
     return commits_out  # newest first
 
 
@@ -341,17 +338,11 @@ def command_line():
     )
 
     parser.add_argument(
-        "-a",
-        "--all",
-        action="store_true",
-        help="print all info on the current commit",
+        "-a", "--all", action="store_true", help="print all info on the current commit",
     )
 
     parser.add_argument(
-        "-v",
-        "--last",
-        action="store_true",
-        help="print the last tagged version",
+        "-v", "--last", action="store_true", help="print the last tagged version",
     )
 
     parser.add_argument(
@@ -403,15 +394,11 @@ def command_line():
         changelog = get_changelog()
         change_counts = get_change_counts()
         if changelog:
-            _print_status(
-                "changelog",
-                "",
-                end="\n\n"
-            )
+            _print_status("changelog", "", end="\n\n")
             print(get_changelog())
             _print_status(
                 "changelog",
-                f"{change_counts[0]} features and {change_counts[1]} fixes in total."
+                f"{change_counts[0]} features and {change_counts[1]} fixes in total.",
             )
         else:
             _print_status("changelog", "no features or fixes since last release.")
