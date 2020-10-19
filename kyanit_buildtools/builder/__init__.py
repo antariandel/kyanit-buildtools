@@ -9,7 +9,7 @@ import subprocess
 
 import semver
 
-from ..versioning import describe_head
+from ..versioning import GitReleaseStatus
 
 ESP_OPEN_SDK_URL = "https://github.com/kyanit-project/esp-open-sdk"
 ESP_OPEN_SDK_REV = "fd14e15"
@@ -379,7 +379,7 @@ def build_kyanit_core():
         exit()
 
     # DETERMINE VERSION NUMBER
-    version = describe_head()
+    version = GitReleaseStatus().head
     try:
         version_info = semver.VersionInfo.parse(version)
     except (TypeError, ValueError):
