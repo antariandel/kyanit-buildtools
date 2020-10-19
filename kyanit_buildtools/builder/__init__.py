@@ -65,49 +65,67 @@ def remove_dir_tree(path):
 def git_clone_and_checkout(url, rev, recursive=False):
     # TODO: GIT: Do some progress feedback
     folder_name = url.rpartition("/")[2]
+
     try:
         print_status("git", f"cloning into '{url}' ...")
-        subprocess.Popen(
+        proc = subprocess.Popen(
             ["git", "clone", url],
             cwd=WORK_DIR,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-        ).wait()
-    except subprocess.CalledProcessError:
-        print_status("git", f"cannot clone repository '{url}'.", error=True)
+        )
+        proc.wait()
+    except FileNotFoundError:
+        print_status("git", f"git not found.", error=True)
         return False
     else:
+        if proc.returncode > 0:
+            print_status("git", f"cannot clone repository '{url}'.", error=True)
+            return False
         if folder_name is None:
             print_status("git", f"cannot find cloned repository '{url}'.", error=True)
             return False
+    
     try:
         print_status("git", f"checking out rev '{rev}' ...")
-        subprocess.Popen(
+        proc = subprocess.Popen(
             ["git", "checkout", rev],
             cwd=os.path.join(WORK_DIR, folder_name),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-        ).wait()
-    except subprocess.CalledProcessError:
-        print_status(
-            "git", f"cannot check out rev '{rev}' in '{folder_name}'.", error=True
         )
+        proc.wait()
+    except FileNotFoundError:
+        print_status("git", f"git not found.", error=True)
         return False
+    else:
+        if proc.returncode > 0:
+            print_status(
+                "git", f"cannot check out rev '{rev}' in '{folder_name}'.", error=True
+            )
+            return False
+    
     if recursive:
         try:
             print_status("git", "updating submodules (if any) ...")
-            subprocess.Popen(
+            proc = subprocess.Popen(
                 ["git", "submodule", "update", "--init"],
                 cwd=os.path.join(WORK_DIR, folder_name),
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-            ).wait()
-            return True
-        except subprocess.CalledProcessError:
-            print_status(
-                "git", f"cannot update submodules in '{folder_name}'.", error=True
             )
+            proc.wait()
+        except FileNotFoundError:
+            print_status("git", f"git not found.", error=True)
             return False
+        else:
+            if proc.returncode > 0:
+                print_status(
+                    "git", f"cannot update submodules in '{folder_name}'.", error=True
+                )
+                return False
+            else:
+                return True
     else:
         return True
 
@@ -142,15 +160,18 @@ def build_esp_open_sdk(force_rebuild=False):
                     print_status("esp-open-sdk", f"building ... {p.tick()}", end="\r")
                     f.write(line)
                 print_status("esp-open-sdk", f"building ... {p.clear()}")
-        except subprocess.CalledProcessError:
-            print_status(
-                "esp-open-sdk",
-                "cannot build.",
-                error=True,
-                check_file_path=os.path.join(WORK_DIR, "esp-open-sdk-build.log"),
-            )
-            exit()
+            proc.wait()
+        except FileNotFoundError:
+            print_status("esp-open-sdk", "make not found.", error=True)
         else:
+            if proc.returncode > 0:
+                print_status(
+                    "esp-open-sdk",
+                    "cannot build.",
+                    error=True,
+                    check_file_path=os.path.join(WORK_DIR, "esp-open-sdk-build.log"),
+                )
+                exit()
             # check output (could also check for xtensa binary)
             if (
                 "Xtensa toolchain is built"
@@ -203,15 +224,18 @@ def build_mpy(force_rebuild=False):
                     )
                     f.write(line)
                 print_status("micropython", f"building mpy-cross ... {p.clear()}")
-        except subprocess.CalledProcessError:
-            print_status(
-                "micropython",
-                "cannot build mpy-cross.",
-                error=True,
-                check_file_path=os.path.join(WORK_DIR, "mpy-cross-build.log"),
-            )
-            exit()
+            proc.wait()
+        except FileNotFoundError:
+            print_status("micropython", "make not found.", error=True)
         else:
+            if proc.returncode > 0:
+                print_status(
+                    "micropython",
+                    "cannot build mpy-cross.",
+                    error=True,
+                    check_file_path=os.path.join(WORK_DIR, "mpy-cross-build.log"),
+                )
+                exit()
             # check mpy-cross binary exists
             if os.path.exists(
                 os.path.join(WORK_DIR, "micropython", "mpy-cross", "mpy-cross")
@@ -274,15 +298,17 @@ def build_mpy(force_rebuild=False):
                     f.write(proc_output[1].decode())
                 if tries == 2 or not proc_output[1]:
                     break
-        except subprocess.CalledProcessError:
-            print_status(
-                "micropython",
-                "cannot build esp8266 submodules.",
-                error=True,
-                check_file_path=os.path.join(WORK_DIR, "mpy-submodules-build.log"),
-            )
-            exit()
+        except FileNotFoundError:
+            print_status("micropython", "make not found.", error=True)
         else:
+            if proc.returncode > 0:
+                print_status(
+                    "micropython",
+                    "cannot build esp8266 submodules.",
+                    error=True,
+                    check_file_path=os.path.join(WORK_DIR, "mpy-submodules-build.log"),
+                )
+                exit()
             if proc_output[1]:
                 print_status(
                     "micropython",
@@ -427,15 +453,18 @@ def build_kyanit_core():
                 print_status("build", f"building firmware ... {p.tick()}", end="\r")
                 f.write(line)
             print_status("build", f"building firmware ... {p.clear()}")
-    except subprocess.CalledProcessError:
-        print_status(
-            "build",
-            "cannot build firmware.",
-            error=True,
-            check_file_path=os.path.join(WORK_DIR, "kyanit-build.log"),
-        )
-        exit()
+        proc.wait()
+    except FileNotFoundError:
+        print_status("build", "make not found.", error=True)
     else:
+        if proc.returncode > 0:
+            print_status(
+                "build",
+                "cannot build firmware.",
+                error=True,
+                check_file_path=os.path.join(WORK_DIR, "kyanit-build.log"),
+            )
+            exit()
         if not os.path.exists(
             os.path.join(
                 WORK_DIR,
@@ -505,6 +534,7 @@ def fw_upload(serial_port, no_erase=False):
             print()
         except FileNotFoundError:
             print_status("upload", "esptool.py not found.", error=True)
+            return
         else:
             if proc.returncode > 0:
                 # some error occurred
@@ -537,6 +567,7 @@ def fw_upload(serial_port, no_erase=False):
         print()
     except FileNotFoundError:
         print_status("upload", "esptool.py not found.", error=True)
+        return
     else:
         if proc.returncode > 0:
             # some error occurred
@@ -613,7 +644,7 @@ def command_line():
 
     try:
         subprocess.Popen("git", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except (FileNotFoundError, subprocess.CalledProcessError):
+    except FileNotFoundError:
         print_status(
             "git",
             "git required, but not found on the system, install git "
