@@ -487,7 +487,6 @@ def get_fw_version():
 
 
 def fw_upload(serial_port, no_erase=False):
-    # TODO: Upload: Catch errors from esptool.py
     fw_ver = get_fw_version()
     fw_path = get_fw_binary()
     if fw_ver is None or fw_path is None:
@@ -499,16 +498,29 @@ def fw_upload(serial_port, no_erase=False):
     if not no_erase:
         print_status("upload", "erasing flash ...", end="\n\n")
         try:
-            subprocess.Popen(
-                ["esptool.py", "--port", serial_port, "erase_flash"]
-            ).wait()
+            proc = subprocess.run(
+                ["esptool.py", "--port", serial_port, "erase_flash"],
+                stderr=subprocess.PIPE,
+            )
             print()
-        except subprocess.CalledProcessError as e:
-            print_status("upload", f"error '{e}' occurred during erase.", error=True)
+        except FileNotFoundError:
+            print_status("upload", "esptool.py not found.", error=True)
+        else:
+            if proc.returncode > 0:
+                # some error occurred
+                if f"could not open port {serial_port}" in proc.stderr.decode():
+                    print_status(
+                        "upload", f"could not open port {serial_port}", error=True
+                    )
+                else:
+                    print_status("upload", f"could not erase device.", error=True)
+                return
+            else:
+                print_status("upload", f"done erasing device flash.")
 
     print_status("upload", "uploading ...", end="\n\n")
     try:
-        subprocess.Popen(
+        proc = subprocess.run(
             [
                 "esptool.py",
                 "--port",
@@ -519,13 +531,22 @@ def fw_upload(serial_port, no_erase=False):
                 "--flash_size=detect",
                 "0",
                 fw_path,
-            ]
-        ).wait()
+            ],
+            stderr=subprocess.PIPE,
+        )
         print()
-    except subprocess.CalledProcessError as e:
-        print_status("upload", f"error '{e}' occurred during upload.", error=True)
+    except FileNotFoundError:
+        print_status("upload", "esptool.py not found.", error=True)
     else:
-        print_status("upload", "upload done.")
+        if proc.returncode > 0:
+            # some error occurred
+            if f"could not open port {serial_port}" in proc.stderr.decode():
+                print_status("upload", f"could not open port {serial_port}", error=True)
+            else:
+                print_status("upload", f"could not program device.", error=True)
+            return
+        else:
+            print_status("upload", f"done programming device.")
 
 
 def command_line():
