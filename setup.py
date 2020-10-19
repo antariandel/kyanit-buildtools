@@ -10,7 +10,7 @@ except ImportError:
 PACKAGE_FOLDER = "kyanit_buildtools"
 
 
-version = versioning.describe_head()
+version = versioning.GitReleaseStatus().head
 
 with open(os.path.join(PACKAGE_FOLDER, "_version.py"), "w") as f:
     f.write(f'__version__ = "{version}"')
